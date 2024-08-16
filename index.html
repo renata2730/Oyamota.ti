@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oyamota T.I - Solicitações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            width: 100%;
+            text-align: center;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .requests {
+            width: 90%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+        .request {
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Oyamota T.I</h1>
+    </header>
+    <form id="requestForm">
+        <label for="name">Nome do Funcionário:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="department">Setor/Departamento:</label>
+        <input type="text" id="department" name="department" required>
+
+        <label for="email">E-mail (opcional):</label>
+        <input type="email" id="email" name="email">
+
+        <label for="severity">Gravidade da Situação:</label>
+        <select id="severity" name="severity" required>
+            <option value="simples">Simples</option>
+            <option value="urgente">Urgente</option>
+        </select>
+
+        <label for="description">Descrição do Problema:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div class="requests" id="requests"></div>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const department = document.getElementById('department').value;
+            const email = document.getElementById('email').value;
+            const severity = document.getElementById('severity').value;
+            const description = document.getElementById('description').value;
+
+            const request = {
+                name,
+                department,
+                email,
+                severity,
+                description,
+                timestamp: new Date().getTime()
+            };
+
+            let requests = JSON.parse(localStorage.getItem('requests')) || [];
+            requests.push(request);
+            localStorage.setItem('requests', JSON.stringify(requests));
+
+            displayRequests();
+            this.reset();
+        });
+
+        function displayRequests() {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            const requestsContainer = document.getElementById('requests');
+            requestsContainer.innerHTML = '';
+
+            const now = new Date().getTime();
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            const filteredRequests = requests.filter(request => now - request.timestamp < oneDay);
+            localStorage.setItem('requests', JSON.stringify(filteredRequests));
+
+            filteredRequests.forEach(request => {
+                const requestDiv = document.createElement('div');
+                requestDiv.classList.add('request');
+                requestDiv.innerHTML = `
+                    <p><strong>Nome:</strong> ${request.name}</p>
+                    <p><strong>Setor/Departamento:</strong> ${request.department}</p>
+                    <p><strong>E-mail:</strong> ${request.email}</p>
+                    <p><strong>Gravidade:</strong> ${request.severity}</p>
+                    <p><strong>Descrição:</strong> ${request.description}</p>
+                `;
+                requestsContainer.appendChild(requestDiv);
+            });
+        }
+
+        displayRequests();
+    </script>
+</body>
+</html>
